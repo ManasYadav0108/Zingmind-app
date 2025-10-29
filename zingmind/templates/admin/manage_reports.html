@@ -1,0 +1,136 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports</title>
+</head>
+<body>
+    <h1>HR Reports</h1>
+    <p>This page can be used to generate reports, graphs, and summaries.</p>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HR Reports</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            color: #0d47a1;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #555;
+            font-size: 15px;
+        }
+
+        .container {
+            width: 90%;
+            margin: 30px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card i {
+            font-size: 2.2rem;
+            color: #0d47a1;
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin: 10px 0;
+            color: #0d47a1;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #555;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #555;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.6rem; }
+            .card i { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>HR Reports Dashboard</h1>
+        <p>Generate insights, summaries, and performance analytics for your organization.</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <i class="fa-solid fa-user-check"></i>
+            <h2>Attendance Overview</h2>
+            <p>Get daily, weekly, or monthly attendance summaries across all departments.</p>
+        </div>
+
+        <div class="card">
+            <i class="fa-solid fa-money-bill-wave"></i>
+            <h2>Payroll Summary</h2>
+            <p>View salary disbursements, pending payments, and monthly payroll reports.</p>
+        </div>
+
+        <div class="card">
+            <i class="fa-solid fa-calendar-check"></i>
+            <h2>Leave Reports</h2>
+            <p>Analyze leave trends, employee utilization, and approval rates easily.</p>
+        </div>
+
+        <div class="card">
+            <i class="fa-solid fa-chart-line"></i>
+            <h2>Performance Metrics</h2>
+            <p>Track key performance indicators and productivity scores department-wise.</p>
+        </div>
+    </div>
+
+    <footer>© 2025 ZingMind HRMS | Analytics & Reporting Suite</footer>
+</body>
+</html>

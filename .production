@@ -1,0 +1,2 @@
+[config]
+SCM_DO_BULID_DURING_DEPLOYMENT=true

@@ -1,0 +1,1197 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #1f3c88;
+            color: #fff;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; font-size: 22px; font-weight: 600; }
+        header a { color: #ffeb3b; text-decoration: none; font-size: 14px; }
+        main {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .card h2 {
+            margin: 0 0 15px;
+            color: #1f3c88;
+            font-size: 18px;
+            border-bottom: 2px solid #1f3c88;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1f3c88;
+            margin-bottom: 15px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: center; padding: 10px; font-size: 14px; }
+        th { background: #1f3c88; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        button {
+            background: #1f3c88; color: #fff; border: none;
+            padding: 8px 15px; border-radius: 6px;
+            cursor: pointer; font-size: 14px;
+        }
+        button:hover { background: #16316b; }
+        ul { padding-left: 20px; }
+        ul li { margin: 6px 0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome, {{ employee.name }}</h1>
+        <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </header>
+
+    <main>
+        <!-- Profile -->
+        <div class="card">
+            <h2><i class="fas fa-user"></i> Profile</h2>
+
+            <!-- Profile Picture -->
+            {% if employee.profile_image %}
+                <img src="{{ employee.profile_image.url }}" alt="Profile Picture" class="profile-pic">
+            {% else %}
+                <img src="/static/images/default-profile.png" alt="Profile Picture" class="profile-pic">
+            {% endif %}
+
+            <p><b>Employee ID:</b> {{ employee.employee_id }}</p>
+            <p><b>Department:</b> {{ employee.department }}</p>
+            <p><b>Designation:</b> {{ employee.designation }}</p>
+            <p><b>Contact:</b> {{ employee.contact }}</p>
+            <p><b>Joining Date:</b> {{ employee.joining_date }}</p>
+            <button>Edit Profile</button>
+
+            <!-- Upload Profile Image -->
+            <form method="post" enctype="multipart/form-data" style="margin-top: 10px;">
+                {% csrf_token %}
+                <input type="file" name="profile_image" accept="image/*" required>
+                <button type="submit">Upload Photo</button>
+            </form>
+        </div>
+
+        <!-- Attendance -->
+        <div class="card">
+            <h2><i class="fas fa-calendar-check"></i> Attendance</h2>
+            <button>Check-In</button>
+            <button>Check-Out</button>
+            <table>
+                <tr><th>Date</th><th>Status</th></tr>
+                {% for att in attendance %}
+                <tr><td>{{ att.date }}</td><td>{{ att.status }}</td></tr>
+                {% empty %}<tr><td colspan="2">No records</td></tr>{% endfor %}
+            </table>
+        </div>
+
+        <!-- Leave -->
+        <div class="card">
+            <h2><i class="fas fa-plane-departure"></i> Leave</h2>
+            <p><b>Balance:</b> {{ employee.leave_balance }} days</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="date" name="leave_date" required>
+                <button>Apply Leave</button>
+            </form>
+            <ul>
+                {% for leave in leaves %}
+                <li>{{ leave.date }} - {{ leave.status }}</li>
+                {% empty %}<li>No leave records</li>{% endfor %}
+            </ul>
+        </div>
+
+        <!-- Payroll -->
+        <div class="card">
+            <h2><i class="fas fa-money-bill"></i> Payroll</h2>
+            <table>
+                <tr><th>Month</th><th>Amount</th><th>Paid On</th></tr>
+                {% for pay in payrolls %}
+                <tr><td>{{ pay.month }}</td><td>₹{{ pay.amount }}</td><td>{{ pay.paid_on }}</td></tr>
+                {% empty %}<tr><td colspan="3">No payroll data</td></tr>{% endfor %}
+            </table>
+            <button>Download Payslip</button>
+        </div>
+
+        <!-- Tasks -->
+        <div class="card">
+            <h2><i class="fas fa-tasks"></i> Tasks</h2>
+            <ul>
+                {% for task in tasks %}
+                <li><b>{{ task.title }}</b> - {{ task.deadline }} - <i>{{ task.status }}</i></li>
+                {% empty %}<li>No tasks assigned</li>{% endfor %}
+            </ul>
+            <button>Upload Report</button>
+        </div>
+
+        <!-- Performance -->
+        <div class="card">
+            <h2><i class="fas fa-chart-line"></i> Performance</h2>
+            <p>Latest Rating: {{ performance.rating }}</p>
+            <p>KPI Progress: {{ performance.kpi_progress }}%</p>
+            <button>View Report</button>
+        </div>
+
+        <!-- Documents -->
+        <div class="card">
+            <h2><i class="fas fa-file-alt"></i> Documents</h2>
+            <ul>
+                {% for doc in documents %}
+                <li><a href="{{ doc.file.url }}" target="_blank">{{ doc.title }}</a></li>
+                {% empty %}<li>No documents</li>{% endfor %}
+            </ul>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="file" required>
+                <button>Upload</button>
+            </form>
+        </div>
+
+        <!-- Notifications -->
+        <div class="card">
+            <h2><i class="fas fa-bell"></i> Notifications</h2>
+            <ul>
+                {% for note in notifications %}
+                <li>{{ note.message }} ({{ note.date }})</li>
+                {% empty %}<li>No notifications</li>{% endfor %}
+            </ul>
+        </div>
+
+        <!-- Support -->
+        <div class="card">
+            <h2><i class="fas fa-headset"></i> Support</h2>
+            <form method="post">
+                {% csrf_token %}
+                <textarea name="ticket" placeholder="Describe your issue..." rows="3" style="width:100%;"></textarea>
+                <button>Submit Ticket</button>
+            </form>
+        </div>
+
+        <!-- Settings -->
+        <div class="card">
+            <h2><i class="fas fa-cog"></i> Settings</h2>
+            <button>Change Password</button>
+           
+        </div>
+    </main>
+</body>
+</html>  {% endcomment %}
+{% comment %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f4f6f9; margin: 0; padding: 0; }
+        header { background: #1f3c88; color: #fff; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 22px; font-weight: 600; }
+        header a { color: #ffeb3b; text-decoration: none; font-size: 14px; }
+        main { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .card h2 { margin: 0 0 15px; color: #1f3c88; font-size: 18px; border-bottom: 2px solid #1f3c88; display: inline-block; padding-bottom: 5px; }
+        .profile-pic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #1f3c88; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: center; padding: 10px; font-size: 14px; }
+        th { background: #1f3c88; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        button { background: #1f3c88; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #16316b; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome, {{ employee.name }}</h1>
+        <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </header>
+
+    <main>
+        <!-- Profile Card -->
+        <div class="card">
+            <h2><i class="fas fa-user"></i> Profile</h2>
+            {% if employee.profile_image %}
+                <img src="{{ employee.profile_image.url }}" alt="Profile Picture" class="profile-pic">
+            {% else %}
+                <img src="/static/images/default-profile.png" alt="Profile Picture" class="profile-pic">
+            {% endif %}
+            <p><b>Employee ID:</b> {{ employee.employee_id }}</p>
+            <p><b>Department:</b> {{ employee.department }}</p>
+            <p><b>Designation:</b> {{ employee.designation }}</p>
+            <p><b>Contact:</b> {{ employee.contact }}</p>
+            <p><b>Joining Date:</b> {{ employee.joining_date }}</p>
+        </div>
+
+        <!-- Attendance Card -->
+        <div class="card">
+            <h2><i class="fas fa-calendar-check"></i> Attendance</h2>
+            <table>
+                <tr><th>Date</th><th>Status</th></tr>
+                {% for att in attendance %}
+                <tr><td>{{ att.AttendanceDate }}</td><td>{{ att.Status }}</td></tr>
+                {% empty %}
+                <tr><td colspan="2">No records</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Leave Card -->
+        <div class="card">
+            <h2><i class="fas fa-plane-departure"></i> Leave</h2>
+            <ul>
+                {% for leave in leaves %}
+                <li>{{ leave.LeaveDate }} - {{ leave.Status }}</li>
+                {% empty %}<li>No leave records</li>{% endfor %}
+            </ul>
+        </div>
+
+        <!-- Payroll Card -->
+        <div class="card">
+            <h2><i class="fas fa-money-bill"></i> Payroll</h2>
+            <table>
+                <tr><th>Month</th><th>Amount</th><th>Paid On</th></tr>
+                {% for pay in payrolls %}
+                <tr><td>{{ pay.Month }}</td><td>₹{{ pay.Amount }}</td><td>{{ pay.PaidOn }}</td></tr>
+                {% empty %}<tr><td colspan="3">No payroll data</td></tr>{% endfor %}
+            </table>
+        </div>
+    </main>
+</body>
+</html>  {% endcomment %}
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Employee Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    overflow-x: hidden; /* prevents horizontal scroll */
+}
+
+header {
+    background: #1f3c88;
+    color: #fff;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+header a { color: #ffeb3b; text-decoration: none; font-size: 14px; }
+
+/* Main grid */
+main {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+/* Card style */
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+.card h2 {
+    margin: 0 0 15px;
+    color: #1f3c88;
+    font-size: 18px;
+    border-bottom: 2px solid #1f3c88;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+button {
+    background: #1f3c88; color: #fff; border: none;
+    padding: 8px 15px; border-radius: 6px;
+    cursor: pointer; font-size: 14px;
+}
+button:hover { background: #16316b; }
+
+
+#slide-panel {
+    position: fixed;
+    top: 0;
+    left: -400px; /* offscreen initially */
+    width: 400px;
+    height: 100%;
+    background: #fff;
+    box-shadow: 3px 0 15px rgba(0,0,0,0.2);
+    overflow-y: auto;
+    transition: left 0.4s ease;
+    padding: 20px;
+    z-index: 1000;
+    border: none; /* remove any border */
+}
+#slide-panel.open { left: 0; }
+
+.inner-card {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+.inner-card h3 {
+    color: #1f3c88;
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #1f3c88;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+.profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1f3c88;
+    margin-bottom: 10px;
+}
+.close-btn {
+    background: #1f3c88;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+.close-btn:hover { background: #16316b; }
+
+</style>
+</head>
+<body>
+
+<header>
+<h1>Welcome, {{ employee.name }}</h1>
+    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</header>
+
+<main>
+    <!-- Settings Card -->
+    <div class="card">
+        <h2><i class="fas fa-cog"></i> Settings</h2>
+        <button id="open-settings"><i class="fas fa-chevron-right"></i> Open Settings</button>
+    </div>
+
+    <!-- Other Sections -->
+    <!-- Attendance -->
+    <div class="card">
+        <h2><i class="fas fa-calendar-check"></i> Attendance</h2>
+        <button>Check-In</button>
+        <button>Check-Out</button>
+        <table>
+            <tr><th>Date</th><th>Status</th></tr>
+            {% for att in attendance %}
+            <tr><td>{{ att.date }}</td><td>{{ att.status }}</td></tr>
+            {% empty %}<tr><td colspan="2">No records</td></tr>{% endfor %}
+        </table>
+    </div>
+
+    <!-- Leave -->
+    <div class="card">
+        <h2><i class="fas fa-plane-departure"></i> Leave</h2>
+        <p><b>Balance:</b> {{ employee.leave_balance }} days</p>
+        <form method="post">{% csrf_token %}
+            <input type="date" name="leave_date" required>
+            <button>Apply Leave</button>
+        </form>
+        <ul>
+            {% for leave in leaves %}
+            <li>{{ leave.date }} - {{ leave.status }}</li>
+            {% empty %}<li>No leave records</li>{% endfor %}
+        </ul>
+    </div>
+
+    <!-- Tasks -->
+    <div class="card">
+        <h2><i class="fas fa-tasks"></i> Tasks</h2>
+        <ul>
+            {% for task in tasks %}
+            <li><b>{{ task.title }}</b> - {{ task.deadline }} - <i>{{ task.status }}</i></li>
+            {% empty %}<li>No tasks assigned</li>{% endfor %}
+        </ul>
+        <button>Upload Report</button>
+    </div>
+
+    <!-- Performance -->
+    <div class="card">
+        <h2><i class="fas fa-chart-line"></i> Performance</h2>
+        <p>Latest Rating: {{ performance.rating }}</p>
+        <p>KPI Progress: {{ performance.kpi_progress }}%</p>
+        <button>View Report</button>
+    </div>
+
+    <!-- Notifications -->
+    <div class="card">
+        <h2><i class="fas fa-bell"></i> Notifications</h2>
+        <ul>
+            {% for note in notifications %}
+            <li>{{ note.message }} ({{ note.date }})</li>
+            {% empty %}<li>No notifications</li>{% endfor %}
+        </ul>
+    </div>
+
+    <!-- Support -->
+    <div class="card">
+        <h2><i class="fas fa-headset"></i> Support</h2>
+        <form method="post">{% csrf_token %}
+            <textarea name="ticket" placeholder="Describe your issue..." rows="3" style="width:100%;"></textarea>
+            <button>Submit Ticket</button>
+        </form>
+    </div>
+
+</main>
+
+<!-- Slide Panel -->
+<div id="slide-panel">
+    <button class="close-btn" id="close-settings"><i class="fas fa-times"></i> Close</button>
+
+    <!-- Profile -->
+    <div class="inner-card">
+        <h3><i class="fas fa-user"></i> Profile</h3>
+        {% if employee.profile_image %}
+            <img src="{{ employee.profile_image.url }}" alt="Profile" class="profile-pic">
+        {% else %}
+            <img src="/static/images/default-profile.png" alt="Profile" class="profile-pic">
+        {% endif %}
+        <p><b>Employee ID:</b> {{ employee.employee_id }}</p>
+        <p><b>Department:</b> {{ employee.department }}</p>
+        <p><b>Designation:</b> {{ employee.designation }}</p>
+        <p><b>Contact:</b> {{ employee.contact }}</p>
+        <p><b>Joining Date:</b> {{ employee.joining_date }}</p>
+    </div>
+
+    <!-- Payroll -->
+    <div class="inner-card">
+        <h3><i class="fas fa-money-bill"></i> Payroll</h3>
+        <table>
+            <tr><th>Month</th><th>Amount</th><th>Paid On</th></tr>
+            {% for pay in payrolls %}
+            <tr><td>{{ pay.month }}</td><td>₹{{ pay.amount }}</td><td>{{ pay.paid_on }}</td></tr>
+            {% empty %}<tr><td colspan="3">No payroll data</td></tr>{% endfor %}
+        </table>
+    </div>
+
+    <!-- Documents -->
+    <div class="inner-card">
+        <h3><i class="fas fa-file-alt"></i> Documents</h3>
+        <ul>
+            {% for doc in documents %}
+            <li><a href="{{ doc.file.url }}" target="_blank">{{ doc.title }}</a></li>
+            {% empty %}<li>No documents</li>{% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script>
+const openBtn = document.getElementById('open-settings');
+const closeBtn = document.getElementById('close-settings');
+const panel = document.getElementById('slide-panel');
+
+openBtn.addEventListener('click', () => panel.classList.add('open'));
+closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+</script>
+
+</body>
+</html> {% endcomment %}
+ {% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Employee Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    background: #1f3c88;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding-top: 30px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s;
+}
+.sidebar a:hover, .sidebar a.active {
+    background: #16316b;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 20px 30px;
+    overflow-y: auto;
+}
+
+/* Sections / Cards */
+.section {
+    display: none;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+}
+.section.active { display: block; }
+
+.section h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #1f3c88;
+    border-bottom: 2px solid #1f3c88;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Buttons */
+button {
+    background: #1f3c88; color: #fff; border: none;
+    padding: 8px 15px; border-radius: 6px;
+    cursor: pointer; font-size: 14px;
+    margin: 5px 0;
+}
+button:hover { background: #16316b; }
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+table, th, td { border: 1px solid #ddd; }
+th, td { padding: 8px; text-align: left; }
+
+/* Profile Picture */
+.profile-pic {
+    width: 100px; height: 100px;
+    border-radius: 50%; object-fit: cover;
+    border: 2px solid #1f3c88;
+    margin-bottom: 15px;
+}
+
+/* Inputs / Forms */
+input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>{{ employee.name }}</h2>
+    <a href="#" class="nav-link active" data-target="profile"><i class="fas fa-user"></i> Profile</a>
+    <a href="#" class="nav-link" data-target="payroll"><i class="fas fa-money-bill"></i> Payroll</a>
+    <a href="#" class="nav-link" data-target="documents"><i class="fas fa-file-alt"></i> Documents</a>
+    <a href="#" class="nav-link" data-target="attendance"><i class="fas fa-calendar-check"></i> Attendance</a>
+    <a href="#" class="nav-link" data-target="leave"><i class="fas fa-plane-departure"></i> Leave</a>
+    <a href="#" class="nav-link" data-target="tasks"><i class="fas fa-tasks"></i> Tasks</a>
+    <a href="#" class="nav-link" data-target="performance"><i class="fas fa-chart-line"></i> Performance</a>
+    <a href="#" class="nav-link" data-target="notifications"><i class="fas fa-bell"></i> Notifications</a>
+    <a href="#" class="nav-link" data-target="support"><i class="fas fa-headset"></i> Support</a>
+    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="main-content">
+
+    <!-- Profile Section -->
+    <div id="profile" class="section active">
+        <h2><i class="fas fa-user"></i> Profile</h2>
+        {% if employee.profile_image %}
+            <img src="{{ employee.profile_image.url }}" class="profile-pic" alt="Profile">
+        {% else %}
+            <img src="/static/images/default-profile.png" class="profile-pic" alt="Profile">
+        {% endif %}
+        <p><b>Employee Code:</b> {{ employee.employee_code }}</p>
+        <p><b>Department:</b> {{ employee.department.department_name }}</p>
+        <p><b>Designation:</b> {{ employee.designation }}</p>
+        <p><b>Role:</b> {{ employee.role }}</p>
+        <p><b>Email:</b> {{ employee.email }}</p>
+        <p><b>Contact:</b> {{ employee_contacts.mobile_no }}</p>
+        <p><b>Joining Date:</b> {{ employee.doj }}</p>
+        <p><b>DOB:</b> {{ employee_personal_info.dob }}</p>
+        <p><b>Gender:</b> {{ employee_personal_info.gender }}</p>
+        <p><b>Blood Group:</b> {{ employee_personal_info.blood_group }}</p>
+    </div>
+
+    <!-- Payroll Section -->
+    <div id="payroll" class="section">
+        <h2><i class="fas fa-money-bill"></i> Payroll</h2>
+        <table>
+            <tr><th>Month</th><th>In-hand Pay</th></tr>
+            {% for pay in salary_transactions %}
+            <tr><td>{{ pay.month_year }}</td><td>₹{{ pay.inhand_pay }}</td></tr>
+            {% empty %}<tr><td colspan="2">No payroll data</td></tr>{% endfor %}
+        </table>
+    </div>
+
+    <!-- Documents Section -->
+    <div id="documents" class="section">
+        <h2><i class="fas fa-file-alt"></i> Documents</h2>
+        <ul>
+            {% for doc in documents %}
+            <li><a href="{{ doc.file.url }}" target="_blank">{{ doc.title }}</a></li>
+            {% empty %}<li>No documents</li>{% endfor %}
+        </ul>
+    </div>
+
+    <!-- Attendance Section -->
+    <div id="attendance" class="section">
+        <h2><i class="fas fa-calendar-check"></i> Attendance</h2>
+        <button>Check-In</button>
+        <button>Check-Out</button>
+        <table>
+            <tr><th>Date</th><th>Status</th><th>Check-In</th><th>Check-Out</th></tr>
+            {% for att in attendance %}
+            <tr><td>{{ att.attendance_date }}</td><td>{{ att.status }}</td><td>{{ att.check_in }}</td><td>{{ att.check_out }}</td></tr>
+            {% empty %}<tr><td colspan="4">No attendance records</td></tr>{% endfor %}
+        </table>
+    </div>
+
+    <!-- Leave Section -->
+    <div id="leave" class="section">
+        <h2><i class="fas fa-plane-departure"></i> Leave</h2>
+        <p><b>Balance:</b> {{ employee.leave_balance }} days</p>
+        <form method="post">{% csrf_token %}
+            <select name="leave_type" required>
+                {% for lt in leave_types %}
+                <option value="{{ lt.id }}">{{ lt.leave_type }}</option>
+                {% endfor %}
+            </select>
+            <input type="date" name="start_date" required>
+            <input type="date" name="end_date" required>
+            <textarea name="reason" placeholder="Reason" required></textarea>
+            <button>Apply Leave</button>
+        </form>
+        <ul>
+            {% for leave in employee_leaves %}
+            <li>{{ leave.start_date }} to {{ leave.end_date }} - {{ leave.status }}</li>
+            {% empty %}<li>No leave records</li>{% endfor %}
+        </ul>
+    </div>
+
+    <!-- Tasks Section -->
+    <div id="tasks" class="section">
+        <h2><i class="fas fa-tasks"></i> Tasks</h2>
+        <ul>
+            {% for task in tasks %}
+            <li><b>{{ task.title }}</b> - {{ task.deadline }} - <i>{{ task.status }}</i></li>
+            {% empty %}<li>No tasks assigned</li>{% endfor %}
+        </ul>
+        <button>Upload Report</button>
+    </div>
+
+    <!-- Performance Section -->
+    <div id="performance" class="section">
+        <h2><i class="fas fa-chart-line"></i> Performance</h2>
+        <p>Latest Rating: {{ performance.rating }}</p>
+        <p>KPI Progress: {{ performance.kpi_progress }}%</p>
+        <button>View Report</button>
+    </div>
+
+    <!-- Notifications Section -->
+    <div id="notifications" class="section">
+        <h2><i class="fas fa-bell"></i> Notifications</h2>
+        <ul>
+            {% for note in notifications %}
+            <li>{{ note.message }} ({{ note.date }})</li>
+            {% empty %}<li>No notifications</li>{% endfor %}
+        </ul>
+    </div>
+
+    <!-- Support Section -->
+    <div id="support" class="section">
+        <h2><i class="fas fa-headset"></i> Support</h2>
+        <form method="post">{% csrf_token %}
+            <textarea name="ticket" placeholder="Describe your issue..." rows="3"></textarea>
+            <button>Submit Ticket</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+const links = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section');
+
+links.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('data-target');
+        links.forEach(l => l.classList.remove('active'));
+        sections.forEach(s => s.classList.remove('active'));
+        link.classList.add('active');
+        document.getElementById(target).classList.add('active');
+    });
+});
+</script>
+</body>
+</html> {% endcomment %}
+
+
+{% comment %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Employee Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+.sidebar {
+    width: 220px;
+    background: #1f3c88;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding-top: 30px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+.sidebar h2 { text-align: center; margin-bottom: 30px; }
+.sidebar a { color: #fff; text-decoration: none; padding: 12px 20px; display: flex; align-items: center; gap: 10px; transition: background 0.3s; }
+.sidebar a:hover, .sidebar a.active { background: #16316b; }
+.main-content { flex: 1; padding: 20px 30px; overflow-y: auto; }
+.section { display: none; background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+.section.active { display: block; }
+.section h2 { margin-top: 0; margin-bottom: 15px; color: #1f3c88; border-bottom: 2px solid #1f3c88; display: inline-block; padding-bottom: 5px; }
+button { background: #1f3c88; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 5px 0; }
+button:hover { background: #16316b; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table, th, td { border: 1px solid #ddd; }
+th, td { padding: 8px; text-align: left; }
+.profile-pic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #1f3c88; margin-bottom: 15px; }
+input, textarea { width: 100%; padding: 8px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>{{ employee.name }}</h2>
+    <a href="#" class="nav-link active" data-target="profile"><i class="fas fa-user"></i> Profile</a>
+    <a href="#" class="nav-link" data-target="payroll"><i class="fas fa-money-bill"></i> Payroll</a>
+    <a href="#" class="nav-link" data-target="attendance"><i class="fas fa-calendar-check"></i> Attendance</a>
+    <a href="#" class="nav-link" data-target="leave"><i class="fas fa-plane-departure"></i> Leave</a>
+    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="main-content">
+
+    <!-- Profile Section -->
+    <div id="profile" class="section active">
+        <h2><i class="fas fa-user"></i> Profile</h2>
+        {% if employee.profile_image %}
+            <img src="{{ employee.profile_image.url }}" class="profile-pic" alt="Profile">
+        {% else %}
+            <img src="/static/images/default-profile.png" class="profile-pic" alt="Profile">
+        {% endif %}
+        <p><b>Employee Code:</b> {{ employee.employee_code }}</p>
+        <p><b>Department:</b> {{ employee.department.department_name }}</p>
+        <p><b>Designation:</b> {{ employee.designation }}</p>
+        <p><b>Role:</b> {{ employee.role }}</p>
+        <p><b>Email:</b> {{ employee.email }}</p>
+        <p><b>Contact:</b> {{ employee_contacts.mobile_no }}</p>
+        <p><b>Joining Date:</b> {{ employee.doj }}</p>
+        <p><b>DOB:</b> {{ employee_personal_info.dob }}</p>
+        <p><b>Gender:</b> {{ employee_personal_info.gender }}</p>
+        <p><b>Blood Group:</b> {{ employee_personal_info.blood_group }}</p>
+    </div>
+
+    <!-- Payroll Section -->
+    <div id="payroll" class="section">
+        <h2><i class="fas fa-money-bill"></i> Payroll</h2>
+        <table>
+            <tr><th>Month</th><th>In-hand Pay</th></tr>
+            {% for pay in salary_transactions %}
+            <tr><td>{{ pay.month_year }}</td><td>₹{{ pay.inhand_pay }}</td></tr>
+            {% empty %}<tr><td colspan="2">No payroll data</td></tr>{% endfor %}
+        </table>
+    </div>
+
+    <!-- Attendance Section -->
+    <div id="attendance" class="section">
+        <h2><i class="fas fa-calendar-check"></i> Attendance</h2>
+        <table>
+            <tr><th>Date</th><th>Status</th><th>Check-In</th><th>Check-Out</th></tr>
+            {% for att in attendance %}
+            <tr><td>{{ att.attendance_date }}</td><td>{{ att.status }}</td><td>{{ att.check_in }}</td><td>{{ att.check_out }}</td></tr>
+            {% empty %}<tr><td colspan="4">No attendance records</td></tr>{% endfor %}
+        </table>
+    </div>
+
+    <!-- Leave Section -->
+    <div id="leave" class="section">
+        <h2><i class="fas fa-plane-departure"></i> Leave</h2>
+        <form method="post">{% csrf_token %}
+            <select name="leave_type" required>
+                {% for lt in leave_types %}
+                <option value="{{ lt.id }}">{{ lt.leave_type }}</option>
+                {% endfor %}
+            </select>
+            <input type="date" name="start_date" required>
+            <input type="date" name="end_date" required>
+            <textarea name="reason" placeholder="Reason" required></textarea>
+            <button>Apply Leave</button>
+        </form>
+        <ul>
+            {% for leave in employee_leaves %}
+            <li>{{ leave.start_date }} to {{ leave.end_date }} - {{ leave.status }}</li>
+            {% empty %}<li>No leave records</li>{% endfor %}
+        </ul>
+    </div>
+
+</div>
+
+<script>
+const links = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section');
+links.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('data-target');
+        links.forEach(l => l.classList.remove('active'));
+        sections.forEach(s => s.classList.remove('active'));
+        link.classList.add('active');
+        document.getElementById(target).classList.add('active');
+    });
+});
+</script>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Employee Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    background: #1f3c88;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding-top: 30px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s;
+}
+.sidebar a:hover, .sidebar a.active {
+    background: #16316b;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 20px 30px;
+    overflow-y: auto;
+}
+
+/* Sections / Cards */
+.section {
+    display: none;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+}
+.section.active { display: block; }
+
+.section h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #1f3c88;
+    border-bottom: 2px solid #1f3c88;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Buttons */
+button {
+    background: #1f3c88; color: #fff; border: none;
+    padding: 8px 15px; border-radius: 6px;
+    cursor: pointer; font-size: 14px;
+    margin: 5px 0;
+}
+button:hover { background: #16316b; }
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+table, th, td { border: 1px solid #ddd; }
+th, td { padding: 8px; text-align: left; }
+
+/* Profile Picture */
+.profile-pic {
+    width: 100px; height: 100px;
+    border-radius: 50%; object-fit: cover;
+    border: 2px solid #1f3c88;
+    margin-bottom: 15px;
+}
+
+/* Inputs / Forms */
+input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>{{ employee.name }}</h2>
+    <a href="#" class="nav-link active" data-target="profile"><i class="fas fa-user"></i> Profile</a>
+    <a href="#" class="nav-link" data-target="payroll"><i class="fas fa-money-bill"></i> Payroll</a>
+    <a href="#" class="nav-link" data-target="documents"><i class="fas fa-file-alt"></i> Documents</a>
+    <a href="#" class="nav-link" data-target="attendance"><i class="fas fa-calendar-check"></i> Attendance</a>
+    <a href="#" class="nav-link" data-target="leave"><i class="fas fa-plane-departure"></i> Leave</a>
+    <a href="#" class="nav-link" data-target="tasks"><i class="fas fa-tasks"></i> Tasks</a>
+    <a href="#" class="nav-link" data-target="performance"><i class="fas fa-chart-line"></i> Performance</a>
+    <a href="#" class="nav-link" data-target="notifications"><i class="fas fa-bell"></i> Notifications</a>
+    <a href="#" class="nav-link" data-target="support"><i class="fas fa-headset"></i> Support</a>
+    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="main-content">
+
+    <!-- Profile Section -->
+    <div id="profile" class="section active">
+        <h2><i class="fas fa-user"></i> Profile</h2>
+        {% if employee.profile_image %}
+            <img src="{{ employee.profile_image.url }}" class="profile-pic" alt="Profile">
+        {% else %}
+            <img src="/static/images/default-profile.png" class="profile-pic" alt="Profile">
+        {% endif %}
+        <p><b>Employee Code:</b> {{ employee.employee_code }}</p>
+        <p><b>Department:</b> {{ employee.department.department_name }}</p>
+        <p><b>Designation:</b> {{ employee.designation }}</p>
+        <p><b>Role:</b> {{ employee.role }}</p>
+        <p><b>Email:</b> {{ employee.email }}</p>
+        <p><b>Contact:</b> {{ employee_contacts.mobile_no }}</p>
+        <p><b>Joining Date:</b> {{ employee.doj }}</p>
+        <p><b>DOB:</b> {{ employee_personal_info.dob }}</p>
+        <p><b>Gender:</b> {{ employee_personal_info.gender }}</p>
+        <p><b>Blood Group:</b> {{ employee_personal_info.blood_group }}</p>
+    </div>
+
+    <!-- Payroll Section -->
+    <div id="payroll" class="section">
+        <h2><i class="fas fa-money-bill"></i> Payroll</h2>
+        <table>
+            <tr><th>Month</th><th>In-hand Pay</th></tr>
+            {% for pay in salary_transactions %}
+            <tr><td>{{ pay.month_year }}</td><td>₹{{ pay.inhand_pay }}</td></tr>
+            {% empty %}<tr><td colspan="2">No payroll data</td></tr>{% endfor %}
+        </table>
+    </div>
+
+    <!-- Documents Section -->
+    <div id="documents" class="section">
+        <h2><i class="fas fa-file-alt"></i> Documents</h2>
+        <ul>
+            {% for doc in documents %}
+            <li><a href="{{ doc.file.url }}" target="_blank">{{ doc.title }}</a></li>
+            {% empty %}<li>No documents</li>{% endfor %}
+        </ul>
+    </div>
+
+    <!-- Attendance Section -->
+    <div id="attendance" class="section">
+        <h2><i class="fas fa-calendar-check"></i> Attendance</h2>
+        <button>Check-In</button>
+        <button>Check-Out</button>
+        <table>
+            <tr><th>Date</th><th>Status</th><th>Check-In</th><th>Check-Out</th></tr>
+            {% for att in attendance %}
+            <tr><td>{{ att.attendance_date }}</td><td>{{ att.status }}</td><td>{{ att.check_in }}</td><td>{{ att.check_out }}</td></tr>
+            {% empty %}<tr><td colspan="4">No attendance records</td></tr>{% endfor %}
+        </table>
+    </div>
+
+    <!-- Leave Section -->
+    <div id="leave" class="section">
+        <h2><i class="fas fa-plane-departure"></i> Leave</h2>
+        <p><b>Balance:</b> {{ employee.leave_balance }} days</p>
+        <form method="post">{% csrf_token %}
+            <select name="leave_type" required>
+                {% for lt in leave_types %}
+                <option value="{{ lt.id }}">{{ lt.leave_type }}</option>
+                {% endfor %}
+            </select>
+            <input type="date" name="start_date" required>
+            <input type="date" name="end_date" required>
+            <textarea name="reason" placeholder="Reason" required></textarea>
+            <button>Apply Leave</button>
+        </form>
+        <ul>
+            {% for leave in employee_leaves %}
+            <li>{{ leave.start_date }} to {{ leave.end_date }} - {{ leave.status }}</li>
+            {% empty %}<li>No leave records</li>{% endfor %}
+        </ul>
+    </div>
+
+    <!-- Tasks Section -->
+    <div id="tasks" class="section">
+        <h2><i class="fas fa-tasks"></i> Tasks</h2>
+        <ul>
+            {% for task in tasks %}
+            <li><b>{{ task.title }}</b> - {{ task.deadline }} - <i>{{ task.status }}</i></li>
+            {% empty %}<li>No tasks assigned</li>{% endfor %}
+        </ul>
+        <button>Upload Report</button>
+    </div>
+
+    <!-- Performance Section -->
+    <div id="performance" class="section">
+        <h2><i class="fas fa-chart-line"></i> Performance</h2>
+        <p>Latest Rating: {{ performance.rating }}</p>
+        <p>KPI Progress: {{ performance.kpi_progress }}%</p>
+        <button>View Report</button>
+    </div>
+
+    <!-- Notifications Section -->
+    <div id="notifications" class="section">
+        <h2><i class="fas fa-bell"></i> Notifications</h2>
+        <ul>
+            {% for note in notifications %}
+            <li>{{ note.message }} ({{ note.date }})</li>
+            {% empty %}<li>No notifications</li>{% endfor %}
+        </ul>
+    </div>
+
+    <!-- Support Section -->
+    <div id="support" class="section">
+        <h2><i class="fas fa-headset"></i> Support</h2>
+        <form method="post">{% csrf_token %}
+            <textarea name="ticket" placeholder="Describe your issue..." rows="3"></textarea>
+            <button>Submit Ticket</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+const links = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section');
+
+links.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('data-target');
+        links.forEach(l => l.classList.remove('active'));
+        sections.forEach(s => s.classList.remove('active'));
+        link.classList.add('active');
+        document.getElementById(target).classList.add('active');
+    });
+});
+</script>
+</body>
+</html>

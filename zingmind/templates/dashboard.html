@@ -1,0 +1,567 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HRMS Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+   
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    
+    header {
+      background: linear-gradient(135deg, #0d47a1, #1565c0);
+      color: white;
+      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    header h1 {
+      font-weight: 600;
+      font-size: 22px;
+    }
+
+    header p {
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+ 
+    nav {
+      background: white;
+      display: flex;
+      justify-content: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    nav a {
+      color: #0d47a1;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: 500;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
+    }
+
+    nav a:hover {
+      color: #ff9800;
+      transform: translateY(-2px);
+    }
+
+    
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 25px;
+      padding: 40px;
+    }
+
+  
+    .card {
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s ease-in-out;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+
+    .card i {
+      font-size: 38px;
+      background: linear-gradient(135deg, #1565c0, #42a5f5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 15px;
+    }
+
+    .card h3 {
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #0d47a1;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    @media(max-width: 768px){
+      nav { flex-wrap: wrap; }
+      nav a { margin: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>HRMS Dashboard</h1>
+    <p>Welcome, {{ AdminUser.username }}</p>
+  </header>
+
+  <nav>
+    <a href="#"><i class="fas fa-users"></i> Employees</a>
+    <a href="#"><i class="fas fa-calendar-check"></i> Attendance</a>
+    <a href="#"><i class="fas fa-plane-departure"></i> Leave</a>
+    <a href="#"><i class="fas fa-money-bill"></i> Payroll</a>
+    <a href="#"><i class="fas fa-chart-line"></i> Reports</a>
+    <a href="#"><i class="fas fa-cog"></i> Settings</a>
+    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <i class="fas fa-users"></i>
+      <h3>Employee Management</h3>
+      <p>View & manage all employees</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-calendar-check"></i>
+      <h3>Attendance</h3>
+      <p>Track attendance & work hours</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-plane-departure"></i>
+      <h3>Leave Requests</h3>
+      <p>Approve or reject leave requests</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-money-bill"></i>
+      <h3>Payroll</h3>
+      <p>Manage salaries & payslips</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-chart-line"></i>
+      <h3>Reports</h3>
+      <p>Generate HR reports</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-cog"></i>
+      <h3>Settings</h3>
+      <p>Update system preferences</p>
+    </div>
+  </div>
+</body>
+</html> {% endcomment %}
+{% comment %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fa; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: linear-gradient(135deg, #0d47a1, #1565c0); color: white; padding: 18px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
+        header h1 { font-weight: 600; font-size: 22px; }
+        header p { font-size: 15px; opacity: 0.9; }
+        nav { background: white; display: flex; justify-content: center; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        nav a { color: #0d47a1; text-decoration: none; margin: 0 15px; font-weight: 500; font-size: 15px; display: flex; align-items: center; gap: 6px; transition: all 0.3s; }
+        nav a:hover { color: #ff9800; transform: translateY(-2px); }
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 25px; padding: 40px; }
+        .card { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-radius: 14px; padding: 25px; text-align: center; box-shadow: 0 6px 15px rgba(0,0,0,0.08); transition: all 0.3s ease-in-out; cursor: pointer; }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 12px 25px rgba(0,0,0,0.15); }
+        .card i { font-size: 38px; background: linear-gradient(135deg, #1565c0, #42a5f5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; }
+        .card h3 { font-size: 19px; font-weight: 600; margin-bottom: 8px; color: #0d47a1; }
+        .card p { font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>HRMS Admin Dashboard</h1>
+        <p>Welcome, {{ AdminUser.name }}</p>
+    </header>
+
+    <nav>
+        <a href="#"><i class="fas fa-users"></i> Employees</a>
+        <a href="#"><i class="fas fa-calendar-check"></i> Attendance</a>
+        <a href="#"><i class="fas fa-plane-departure"></i> Leave</a>
+        <a href="#"><i class="fas fa-money-bill"></i> Payroll</a>
+        <a href="#"><i class="fas fa-chart-line"></i> Reports</a>
+        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+        <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+
+
+<a href="{% url 'manage_employees' %}" style="text-decoration: none;">
+    <div class="card">
+        <i class="fas fa-users"></i>
+        <h3>Employee Management</h3>
+        <p>View & manage all employees</p>
+    </div>
+</a>
+
+
+<a href="{% url 'manage_attendance' %}" style="text-decoration:none;">
+    <div class="card">
+        <i class="fas fa-calendar-check"></i>
+        <h3>Attendance</h3>
+        <p>Track attendance & work hours</p>
+    </div>
+</a>
+
+<a href="{% url 'manage_leave' %}" style="text-decoration:none;">
+    <div class="card">
+        <i class="fas fa-plane-departure"></i>
+        <h3>Leave Requests</h3>
+        <p>Approve or reject leave requests</p>
+    </div>
+</a>
+
+<a href="{% url 'manage_payroll' %}" style="text-decoration:none;">
+    <div class="card">
+        <i class="fas fa-money-bill"></i>
+        <h3>Payroll</h3>
+        <p>Manage salaries & payslips</p>
+    </div>
+</a>
+
+<a href="{% url 'manage_reports' %}" style="text-decoration:none;">
+    <div class="card">
+        <i class="fas fa-chart-line"></i>
+        <h3>Reports</h3>
+        <p>Generate HR reports</p>
+    </div>
+</a>
+
+<a href="{% url 'manage_settings' %}" style="text-decoration:none;">
+    <div class="card">
+        <i class="fas fa-cog"></i>
+        <h3>Settings</h3>
+        <p>Update system preferences</p>
+    </div>
+</a>
+     {% endcomment %} 
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fa; display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: #0d47a1;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            position: fixed;
+            height: 100%;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background: #1565c0;
+            transform: translateX(5px);
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 40px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 12px 25px rgba(0,0,0,0.15); }
+        .card i { font-size: 38px; background: linear-gradient(135deg, #1565c0, #42a5f5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; }
+        .card h3 { font-size: 19px; font-weight: 600; margin-bottom: 8px; color: #0d47a1; }
+        .card p { font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>HRMS Admin</h2>
+        <a href="{% url 'manage_employees' %}"><i class="fas fa-users"></i> Employees</a>
+        <a href="{% url 'manage_payroll' %}"><i class="fas fa-money-bill"></i> Payroll</a>
+        <a href="{% url 'manage_reports' %}"><i class="fas fa-chart-line"></i> Reports</a>
+        <a href="{% url 'manage_settings' %}"><i class="fas fa-cog"></i> Settings</a>
+        <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <h1>Welcome, {{ AdminUser.name }}</h1>
+        <div class="cards">
+            <!-- Default cards: Attendance and Leave -->
+            <a href="{% url 'manage_attendance' %}" style="text-decoration:none;">
+                <div class="card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Attendance</h3>
+                    <p>Track attendance & work hours</p>
+                </div>
+            </a>
+
+            <a href="{% url 'manage_leave' %}" style="text-decoration:none;">
+                <div class="card">
+                    <i class="fas fa-plane-departure"></i>
+                    <h3>Leave Requests</h3>
+                    <p>Approve or reject leave requests</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HRMS Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: #f4f6fb;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: #1e293b;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100%;
+            padding: 25px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .sidebar-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .menu a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+        .menu a:hover, .menu a.active {
+            background-color: #334155;
+            color: #fff;
+        }
+
+        .menu a i {
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px 40px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .topbar h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Dashboard Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 25px;
+            transition: 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .card i {
+            font-size: 32px;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        .card p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { width: 200px; }
+            .main-content { margin-left: 200px; padding: 20px; }
+        }
+        @media (max-width: 700px) {
+            .sidebar { display: none; }
+            .main-content { margin: 0; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <h2>HRMS Admin</h2>
+            </div>
+            <div class="menu">
+                <a href="{% url 'dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{% url 'manage_employees' %}"><i class="fas fa-users"></i> Employees</a>
+                <a href="{% url 'manage_payroll' %}"><i class="fas fa-money-bill-wave"></i> Payroll</a>
+                <a href="{% url 'manage_attendance' %}"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="{% url 'manage_leave' %}"><i class="fas fa-plane-departure"></i> Leave</a>
+                <a href="{% url 'manage_reports' %}"><i class="fas fa-chart-line"></i> Reports</a>
+                <a href="{% url 'manage_settings' %}"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+        </div>
+        <a href="/logout/" style="margin: 15px 20px; text-decoration:none; color:#f87171;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Welcome, {{ AdminUser.name }}</h1>
+        </div>
+
+        <div class="cards">
+            <a href="{% url 'manage_employees' %}" style="text-decoration:none;">
+                <div class="card">
+                    <i class="fas fa-users"></i>
+                    <h3>Total Employees</h3>
+                    <p>{{ total_employee }} active employees</p>
+                </div>
+            </a>
+
+            <a href="{% url 'manage_payroll' %}" style="text-decoration:none;">
+                <div class="card">
+                    <i class="fas fa-wallet"></i>
+                    <h3>Payroll Overview</h3>
+                    <p>Last processed on {{ last_payroll_date }}</p>
+                </div>
+            </a>
+
+            <a href="{% url 'manage_attendance' %}" style="text-decoration:none;">
+                <div class="card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Attendance</h3>
+                    <p>{{ attendance_rate }}% attendance this month</p>
+                </div>
+            </a>
+
+            <a href="{% url 'manage_leave' %}" style="text-decoration:none;">
+                <div class="card">
+                    <i class="fas fa-umbrella-beach"></i>
+                    <h3>Leave Requests</h3>
+                    <p>{{ pending_leaves }} pending approvals</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,517 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zingmind Login</title>
+    <style>
+       
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1f3c88, #4facfe);
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 40px 35px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .login-container h2 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.85);
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .login-container input:focus {
+            background: #fff;
+            box-shadow: 0 0 8px rgba(31,60,136,0.5);
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-container button:hover {
+            background: linear-gradient(135deg, #0083b0, #00b4db);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 131, 176, 0.4);
+        }
+
+        .login-container a {
+            display: block;
+            margin-top: 15px;
+            color: #fff;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .login-container a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>🔐 Zingmind Login</h2>
+        <form method="post" action="/login/">
+            {% csrf_token %}
+            <input type="text" name="email" placeholder="Enter Email" required>
+            <input type="password" name="password" placeholder="Enter Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <a href="/password_reset_form/">Forgot Password?</a>
+        {% if msg %}
+            <p class="error-message">{{ msg }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>  {% endcomment %}
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZingMind Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #1f3c88, #4facfe);
+      overflow: hidden;
+    }
+
+    /* Animated floating circles in background */
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      animation: float 6s ease-in-out infinite alternate;
+    }
+    body::before { width: 300px; height: 300px; background: #00b4db; top: -50px; left: -50px; }
+    body::after { width: 400px; height: 400px; background: #0083b0; bottom: -100px; right: -100px; }
+
+    @keyframes float {
+      from { transform: translateY(0px) rotate(0deg); }
+      to { transform: translateY(50px) rotate(180deg); }
+    }
+
+    .login-container {
+      position: relative;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      padding: 45px 35px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+      width: 350px;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .login-container h2 {
+      color: #fff;
+      font-size: 2rem;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 15px 12px 40px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.85);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .input-group input:focus {
+      background: #fff;
+      box-shadow: 0 0 8px rgba(31,60,136,0.5);
+    }
+
+    .input-group svg {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      fill: #1f3c88;
+    }
+
+    .show-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #1f3c88;
+      user-select: none;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #00b4db, #0083b0);
+      border: none;
+      color: #fff;
+      font-size: 1.1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .login-container button:hover {
+      background: linear-gradient(135deg, #0083b0, #00b4db);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 131, 176, 0.4);
+    }
+
+    .login-container a {
+      display: block;
+      margin-top: 15px;
+      color: #fff;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .login-container a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      color: #ff4d4d;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 400px) {
+      .login-container { width: 90%; padding: 35px 25px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>🔐 ZingMind Login</h2>
+    <form method="post" action="/login/">
+      {% csrf_token %}
+      <div class="input-group">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+        </svg>
+        <input type="text" name="email" placeholder="Enter Email" required>
+      </div>
+      <div class="input-group">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 17a2 2 0 0 0 2-2v-3h-4v3a2 2 0 0 0 2 2zm6-7v-3a6 6 0 0 0-12 0v3H4v14h16V10h-2z"/>
+        </svg>
+        <input id="password" type="password" name="password" placeholder="Enter Password" required>
+        <span class="show-password" onclick="togglePassword()">Show</span>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+    <a href="/password_reset_form/">Forgot Password?</a>
+    {% if msg %}
+      <p class="error-message">{{ msg }}</p>
+    {% endif %}
+  </div>
+
+  <script>
+    function togglePassword() {
+      const pass = document.getElementById('password');
+      const toggle = document.querySelector('.show-password');
+      if(pass.type === "password") {
+        pass.type = "text";
+        toggle.textContent = "Hide";
+      } else {
+        pass.type = "password";
+        toggle.textContent = "Show";
+      }
+    }
+  </script>
+</body>
+</html> {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZingMind Login</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+  body, html { height:100%; overflow:hidden; }
+
+  /* Animated gradient background */
+  body {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(270deg, #1f3c88, #4facfe, #00b4db);
+    background-size: 600% 600%;
+    animation: gradientBG 15s ease infinite;
+  }
+  @keyframes gradientBG {
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
+
+  /* Particle effect */
+  .particles {
+    position: absolute;
+    width:100%;
+    height:100%;
+    z-index:0;
+    overflow:hidden;
+  }
+  .particle {
+    position:absolute;
+    width:10px;
+    height:10px;
+    background: rgba(255,255,255,0.3);
+    border-radius:50%;
+    animation: float 10s linear infinite;
+  }
+  @keyframes float {
+    0%{transform: translateY(0px);}
+    100%{transform: translateY(-800px);}
+  }
+
+  /* Container for illustration + login */
+  .container {
+    position:relative;
+    z-index:1;
+    display:flex;
+    width:90%;
+    max-width:1000px;
+    gap:40px;
+    align-items:center;
+  }
+
+  /* Illustration left */
+  .left {
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position: relative;
+  }
+  .left img {
+    width:300px;
+    animation: bounce 2s infinite alternate;
+  }
+  @keyframes bounce {
+    0%{ transform: translateY(0) rotate(-5deg); }
+    50%{ transform: translateY(-15px) rotate(5deg);}
+    100%{ transform: translateY(0) rotate(-5deg);}
+  }
+
+  /* Login card right */
+  .right {
+    flex:1;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(25px);
+    border-radius: 25px;
+    padding:50px 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    transform: rotateY(-5deg);
+  }
+  .right h2 {
+    color:#fff;
+    font-size:2rem;
+    margin-bottom:20px;
+    position:relative;
+  }
+  .right h2::after {
+    content:'';
+    position:absolute;
+    left:0;
+    bottom:-5px;
+    width:60px;
+    height:3px;
+    background: #00b4db;
+    border-radius:2px;
+    animation: wave 1s ease-in-out infinite alternate;
+  }
+  @keyframes wave {
+    0%{ width:40px; background:#00b4db;}
+    50%{ width:70px; background:#0083b0;}
+    100%{ width:40px; background:#00b4db;}
+  }
+
+  .input-group { position: relative; margin-bottom:18px; }
+  .input-group input {
+    width:100%;
+    padding:12px 15px 12px 40px;
+    border:none;
+    border-radius:12px;
+    background: rgba(255,255,255,0.85);
+    font-size:1rem;
+    outline:none;
+    transition: all 0.3s;
+  }
+  .input-group input:focus { background:#fff; box-shadow:0 0 10px rgba(31,60,136,0.6);}
+  .input-group svg {
+    position:absolute;
+    top:50%;
+    left:12px;
+    transform: translateY(-50%);
+    width:18px;
+    height:18px;
+    fill:#1f3c88;
+  }
+  .show-password { position:absolute; top:50%; right:12px; transform: translateY(-50%); cursor:pointer; font-size:0.9rem; color:#1f3c88; user-select:none;}
+
+  .right button {
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    background: linear-gradient(135deg,#00b4db,#0083b0);
+    border:none;
+    color:#fff;
+    font-size:1.1rem;
+    border-radius:12px;
+    cursor:pointer;
+    transition: all 0.3s ease;
+  }
+  .right button:hover {
+    background: linear-gradient(135deg,#0083b0,#00b4db);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,131,176,0.4);
+  }
+  .right a { display:block; margin-top:15px; color:#fff; font-size:0.95rem; text-decoration:none; transition:0.3s;}
+  .right a:hover { text-decoration:underline;}
+  .error-message { color:#ff4d4d; margin-top:10px; font-weight:bold; font-size:0.95rem;}
+
+  @media (max-width:768px) {
+    .container { flex-direction:column-reverse; gap:25px;}
+    .left img { width:200px; }
+    .right { padding:35px 25px; transform: rotateY(0deg);}
+  }
+</style>
+</head>
+<body>
+
+<div class="particles">
+  <!-- Add multiple particles -->
+  <div class="particle" style="left:10%; animation-duration:12s;"></div>
+  <div class="particle" style="left:25%; animation-duration:8s;"></div>
+  <div class="particle" style="left:50%; animation-duration:15s;"></div>
+  <div class="particle" style="left:75%; animation-duration:10s;"></div>
+  <div class="particle" style="left:90%; animation-duration:14s;"></div>
+</div>
+
+<div class="container">
+  <div class="left">
+    <img src="https://cdn-icons-png.flaticon.com/512/4140/4140051.png" alt="3D Pointer Illustration">
+  </div>
+
+  <div class="right">
+    <h2>🔐 ZingMind Login</h2>
+    <form method="post" action="/login/">
+      {% csrf_token %}
+      <div class="input-group">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+        </svg>
+        <input type="text" name="email" placeholder="Enter Email" required>
+      </div>
+      <div class="input-group">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 17a2 2 0 0 0 2-2v-3h-4v3a2 2 0 0 0 2 2zm6-7v-3a6 6 0 0 0-12 0v3H4v14h16V10h-2z"/>
+        </svg>
+        <input id="password" type="password" name="password" placeholder="Enter Password" required>
+        <span class="show-password" onclick="togglePassword()">Show</span>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+    <a href="/password_reset_form/">Forgot Password?</a>
+    {% if msg %}
+      <p class="error-message">{{ msg }}</p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function togglePassword(){
+    const pass=document.getElementById('password');
+    const toggle=document.querySelector('.show-password');
+    if(pass.type==="password"){ pass.type="text"; toggle.textContent="Hide"; }
+    else{ pass.type="password"; toggle.textContent="Show"; }
+  }
+</script>
+
+</body>
+</html>

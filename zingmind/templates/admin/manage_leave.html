@@ -1,0 +1,458 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Requests</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f7fa; padding: 20px; }
+        table { width: 90%; margin: 0 auto; border-collapse: collapse; background: #fff; }
+        th, td { padding: 12px; border-bottom: 1px solid #ccc; }
+        th { background: #0d47a1; color: #fff; }
+        tr:hover { background: #e3f2fd; }
+    </style>
+</head>
+<body>
+    <h1>Leave Requests</h1>
+    <table>
+        <tr>
+            <th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Status</th>
+        </tr>
+        {% for leave in leaves %}
+        <tr>
+            <td>{{ leave.employee_code.name }}</td>
+            <td>{{ leave.leave_type }}</td>
+            <td>{{ leave.start_date }}</td>
+            <td>{{ leave.end_date }}</td>
+            <td>{{ leave.status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html> {% endcomment %}
+{% comment %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Requests</title>
+    <style>
+        /* ---------- Base Reset ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 40px 0;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #0d47a1;
+            margin-bottom: 30px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            letter-spacing: 0.5px;
+        }
+
+        /* ---------- Table Card ---------- */
+        .table-container {
+            width: 90%;
+            max-width: 1100px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(6px);
+            padding: 25px 30px;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #0d47a1;
+            color: #fff;
+            text-align: left;
+            padding: 14px 12px;
+            font-size: 0.95rem;
+            letter-spacing: 0.4px;
+        }
+
+        td {
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background-color: #e3f2fd;
+            transition: all 0.3s ease;
+        }
+
+        /* ---------- Status Badges ---------- */
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .approved { background: #c8e6c9; color: #256029; }
+        .pending { background: #fff9c4; color: #8c6d1f; }
+        .rejected { background: #ffcdd2; color: #b71c1c; }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 900px) {
+            .table-container {
+                width: 95%;
+                padding: 15px;
+            }
+
+            table, th, td {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+
+        /* ---------- Animations ---------- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- Filter Bar ---------- */
+        .top-bar {
+            width: 90%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .filter {
+            display: flex;
+            gap: 10px;
+        }
+
+        select, .search-box {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .search-box:focus, select:focus {
+            border-color: #0d47a1;
+            box-shadow: 0 0 4px rgba(13, 71, 161, 0.4);
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Leave Requests</h1>
+
+    <div class="top-bar">
+        <div class="filter">
+            <input type="text" class="search-box" placeholder="Search employee...">
+            <select>
+                <option value="">All Status</option>
+                <option value="Approved">Approved</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for leave in leaves %}
+                <tr>
+                    <td>{{ leave.employee_code.name }}</td>
+                    <td>{{ leave.leave_type }}</td>
+                    <td>{{ leave.start_date }}</td>
+                    <td>{{ leave.end_date }}</td>
+                    <td>
+                        <span class="status 
+                            {% if leave.status == 'Approved' %}approved
+                            {% elif leave.status == 'Pending' %}pending
+                            {% else %}rejected{% endif %}">
+                            {{ leave.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html> {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Requests</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f6fb; color: #333; display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: #1e293b;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100%;
+            padding: 25px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-header { text-align: center; margin-bottom: 40px; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+        .menu { display: flex; flex-direction: column; gap: 10px; }
+        .menu a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+        .menu a:hover, .menu a.active { background-color: #334155; color: #fff; }
+        .menu a i { font-size: 18px; }
+        .logout {
+            margin: 15px 20px;
+            text-decoration: none;
+            color: #f87171;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px 40px;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .topbar h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Back Button */
+        .back-btn {
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px; /* Same size as Employee Management */
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .back-btn:hover { background: #1d4ed8; }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        select, .search-box {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+        .search-box:focus, select:focus {
+            border-color: #0d47a1;
+            box-shadow: 0 0 4px rgba(13, 71, 161, 0.4);
+        }
+
+        /* Table Card */
+        .table-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(51, 50, 50, 0.05);
+            padding: 25px 30px;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #272727ff;
+            color: #fff;
+            text-align: left;
+            padding: 14px 12px;
+            font-size: 0.95rem;
+            letter-spacing: 0.4px;
+        }
+        td {
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+            transition: all 0.3s ease;
+        }
+
+        /* Status Badges */
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .approved { background: #c8e6c9; color: #256029; }
+        .pending { background: #fff9c4; color: #8c6d1f; }
+        .rejected { background: #ffcdd2; color: #b71c1c; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { width: 200px; }
+            .main-content { margin-left: 200px; padding: 20px; }
+        }
+        @media (max-width: 700px) {
+            .sidebar { display: none; }
+            .main-content { margin: 0; padding: 20px; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <h2>HRMS Admin</h2>
+            </div>
+            <div class="menu">
+                <a href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{% url 'manage_employees' %}"><i class="fas fa-users"></i> Employees</a>
+                <a href="{% url 'manage_payroll' %}"><i class="fas fa-money-bill-wave"></i> Payroll</a>
+                <a href="{% url 'manage_attendance' %}"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="{% url 'manage_leave' %}" class="active"><i class="fas fa-plane-departure"></i> Leave</a>
+                <a href="{% url 'manage_reports' %}"><i class="fas fa-chart-line"></i> Reports</a>
+                <a href="{% url 'manage_settings' %}"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+        </div>
+        <a href="/logout/" style="margin: 15px 20px; text-decoration:none; color:#f87171;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Leave Requests</h1>
+            <a href="{% url 'dashboard' %}" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <div class="filter-bar">
+            <input type="text" class="search-box" placeholder="Search employee...">
+            <select>
+                <option value="">All Status</option>
+                <option value="Approved">Approved</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Type</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                        <td>{{ leave.employee_code.name }}</td>
+                        <td>{{ leave.leave_type }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td>
+                            <span class="status 
+                                {% if leave.status == 'Approved' %}approved
+                                {% elif leave.status == 'Pending' %}pending
+                                {% else %}rejected{% endif %}">
+                                {{ leave.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
