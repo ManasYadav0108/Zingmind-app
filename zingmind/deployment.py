@@ -25,8 +25,12 @@ STATICFILES_STORAGE ='whitenoise.storage.compressedManifeststaticfilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 
 
-# Get the MySQL connection string from environment variable
-connection_string = os.environ['AZURE_MYSQL_CONNECTIONSTRING']
+
+connection_string = os.environ.get('AZURE_MYSQL_CONNECTIONSTRING', '')
+if not connection_string:
+    # Optional: fallback for local testing
+    connection_string = 'mysql://username:password@host:port/dbname'
+
 
 # Split by semicolon and create a dictionary of parameters
 parameters = dict(
