@@ -35,12 +35,12 @@ parameters = dict(
 )
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'zingmind_hrms',      # my database name
-        'USER': 'root',          # my MySQL username
-        'PASSWORD': 'Sharad@19', # my MySQL password
-        'HOST': 'localhost',     # or '127.0.0.1'
-        'PORT': '3306',          # default MySQL port
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("zingmind_hrms" ),
+        "USER": os.environ.get("root"),
+        "PASSWORD": os.environ.get("Sharad@19"),
+        "HOST": os.environ.get("localhost"),
+        "PORT": os.environ.get("3306"),
     }
 }
