@@ -10,7 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
+from pathlib import Path 
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-%3xg5p--*+!h2hv-k@6d3+6&jr&u*ihgvf0ge*8^6zjkx&to$=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["WEB-Application.azurewebsites.net"]
 
 
 # Application definition
@@ -122,6 +123,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# Example for a folder named 'staticfiles' in your project root
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Make sure you have these too
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -154,3 +164,4 @@ LOGIN_EXEMPT_URLS = (
 
 # # Prevent clickjacking
 # X_FRAME_OPTIONS = 'DENY'
+

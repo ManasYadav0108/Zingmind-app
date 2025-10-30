@@ -5,10 +5,7 @@ import pymysql
 
 pymysql.install_as_MySQLdb()
 
-ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME'],
-    "127.0.0.1",
-    "localhost",
-]
+ALLOWED_HOSTS = [os.environ["WEB-Application.azurewebsites.net"]]
 CSRF_TRUSTED_ORIGINS = ['*','https://'+ os.environ['WEBSITE_HOSTNAME']]
 DEBUG = False
 
